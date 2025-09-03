@@ -1,0 +1,22 @@
+{
+  "name": "chmlcart",
+  "version": "1.0.0",
+  "description": "\"Ecommerce using MERN Stack\"",
+  "main": "index.js",
+  "scripts": {
+    "start":"nodemon Backend/index.js",
+    "dev":"set NODE_ENV=development&&nodemon Backend/index.js",
+    "prod":"set NODE_ENV=production &&nodemon Backend/index.js",
+    "seeder": "node Backend/utils/seeder.js"
+  },
+  "author": "Arun S",
+  "license": "ISC",
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.18.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
