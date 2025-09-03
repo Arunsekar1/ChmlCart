@@ -5,7 +5,8 @@ module.exports = (err, req, res, next) => {
         res.status(err.statusCode).json({
             success: false,
             message: err.message,
-            stack: err.stack
+            stack: err.stack,
+            error: err
         });
     }
 
@@ -16,11 +17,31 @@ module.exports = (err, req, res, next) => {
         if(err.name == "ValidationError"){
             message = Object.values(err.errors).map(value => value.message)
             error = new Error(message)
+            error.statusCode = 400;
         }
 
         if(err.name == 'CastError'){
             message = `Resource not found:${err.path}`;
             error = new Error(message);
+            error.statusCode = 400;
+        }
+
+        if(err.code == 11000){
+            message = `Duplicate ${Object.keys(err.keyValue)} entered`;
+            error = new Error(message);
+            error.statusCode = 400;
+        }
+
+        if(err.name == 'JsonWebTokenError'){
+            message = 'JSON Web Token is invalid. Try Again!!!';
+            error = new Error(message);
+            error.statusCode = 400;
+        }
+
+        if(err.name == 'TokenExpiredError'){
+            message = 'JSON Web Token is expired. Try Again!!!';
+            error = new Error(message);
+            error.statusCode = 400;
         }
 
         res.status(err.statusCode).json({
