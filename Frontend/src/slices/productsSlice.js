@@ -5,27 +5,29 @@ const productsSlice = createSlice({
     initialState: {
         loading: false,
     },
-    reducers:{
-        productsRequest(state,action){
-            return{
-                loading:true,
+    reducers: {
+        productsRequest(state, action) {
+            return {
+                loading: true,
             }
         },
-        productsSuccess(state,action){
-            return{
-                loading:false,
-                products:action.payload.products
+        productsSuccess(state, action) {
+            return {
+                loading: false,
+                products: action.payload.products,
+                productsCount: action.payload.count,
+                resPerPage: action.payload.resPerPage
             }
         },
-        productsFail(state,action){
-            return{
-                loading:false,
-                error:action.payload
+        productsFail(state, action) {
+            return {
+                loading: false,
+                error: action.payload
             }
         }
     }
 });
 
-const {actions,reducer} = productsSlice;
-export const {productsRequest,productsSuccess,productsFail} = actions;
+const { actions, reducer } = productsSlice;
+export const { productsRequest, productsSuccess, productsFail } = actions;
 export default reducer;

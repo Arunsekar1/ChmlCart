@@ -7,6 +7,7 @@ import { HelmetProvider } from '@dr.pogodin/react-helmet'
 import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css';
 import ProductDetail from './components/Product/ProductDetail'
+import ProductSearch from './components/Product/ProductSearch'
 
 function App() {
 
@@ -19,6 +20,7 @@ function App() {
             <ToastContainer theme='dark' />
             <Routes>
               <Route path='/' element={<Home />} />
+              <Route path='/search/:keyword' element={<ProductSearch />} />
               <Route path='/product/:id' element={<ProductDetail />} />
             </Routes>
           </div>
