@@ -5,7 +5,7 @@ const APIFeatures = require('../utils/apiFeatures')
 
 // Get Products - /api/v1/products
 exports.getProducts = async (req, res, next) => {
-    const resPerPage = 2;
+    const resPerPage = 3;
     const apiFeatures = new APIFeatures(Product.find(), req.query).search().filter().paginate(resPerPage)
 
     const products = await apiFeatures.query;
@@ -32,6 +32,8 @@ exports.getSingleProduct = async (req, res, next) => {
     if (!product) {
         return next(new ErrorHandler('Product not found', 400));
     }
+
+    await new Promise(resolve => setTimeout(resolve, 3000))
     res.status(200).json({
         success: true,
         product
