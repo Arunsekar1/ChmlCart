@@ -11,6 +11,14 @@ export default defineConfig({
         changeOrigin: true,
         secure: false
       }
-    } 
+    } ,
+    fs:{
+      strict:false
+    }
+  },
+  build:{
+    rollupOptions:{
+      input:'/index.html'
+    }
   }
 })

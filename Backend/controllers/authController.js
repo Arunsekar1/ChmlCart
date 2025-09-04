@@ -7,7 +7,14 @@ const crypto = require("crypto");
 
 // Register User - /api/v1/register
 exports.registerUser = catchAsyncError(async (req, res, next) => {
-    const { name, email, password, avatar } = req.body;
+    const { name, email, password } = req.body;
+
+    let avatar;
+
+    if (req.file) {
+        avatar = `${process.env.BACKEND_URL}/uploads/user/${req.file.originalname}`
+    }
+
     const user = await User.create({
         name,
         email,
@@ -35,9 +42,9 @@ exports.loginUser = catchAsyncError(async (req, res, next) => {
         return next(new ErrorHandler("Invalid email or password", 401));
     }
 
-    if(!await user.isValidPassword(password)){
+    if (!await user.isValidPassword(password)) {
         return next(new ErrorHandler("Invalid email or password", 401));
-    }       
+    }
     sendToken(user, 201, res);
 
 });
@@ -48,31 +55,31 @@ exports.logoutUser = catchAsyncError(async (req, res, next) => {
         expires: new Date(Date.now()),
         httpOnly: true
     })
-    .status(200)
-    .json({
-        success: true,
-        message: "Logged out"
-    });
+        .status(200)
+        .json({
+            success: true,
+            message: "Logged out"
+        });
 
 });
 
 // Forgot Password - /api/v1/password/forgot
-exports.forgotPassword = catchAsyncError(async(req, res, next) => {
-    const user = await User.findOne({email: req.body.email});
+exports.forgotPassword = catchAsyncError(async (req, res, next) => {
+    const user = await User.findOne({ email: req.body.email });
 
-    if(!user){
+    if (!user) {
         return next(new ErrorHandler('User not found with this email', 404));
     }
     // Get Reset Token
     const resetToken = user.getResetToken();
-    await user.save({validateBeforeSave: false});
+    await user.save({ validateBeforeSave: false });
 
     // create reset url
-    const resetUrl = `${req.protocol}://${req.get('host')}/api/v1/password/reset/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL}/password/reset/${resetToken}`;
 
     const message = `Your password reset token is as follow\n\n${resetUrl}\n\n If you have not requested this email, then ignore it.`;
 
-    try{
+    try {
         sendEmail({
             email: user.email,
             subject: 'ChmlCart Password Recovery',
@@ -82,17 +89,17 @@ exports.forgotPassword = catchAsyncError(async(req, res, next) => {
             success: true,
             message: `Email sent to ${user.email} successfully`
         });
-    }catch(error){
+    } catch (error) {
         user.resetPasswordToken = undefined;
         user.resetPasswordTokenExpire = undefined;
-        await user.save({validateBeforeSave: false});
+        await user.save({ validateBeforeSave: false });
 
         return next(new ErrorHandler(error.message, 500));
     }
 });
 
 // Reset Password - /api/v1/password/reset/:token
-exports.resetPassword = catchAsyncError(async(req, res, next) => {
+exports.resetPassword = catchAsyncError(async (req, res, next) => {
     // Hash URL token
     const resetPasswordToken = crypto.createHash('sha256').update(req.params.token).digest('hex');
 
@@ -101,25 +108,25 @@ exports.resetPassword = catchAsyncError(async(req, res, next) => {
         resetPasswordTokenExpire: { $gt: Date.now() }
     });
 
-    if(!user){
+    if (!user) {
         return next(new ErrorHandler('Reset Password Token is invalid or has been expired', 400));
     }
 
-    if(req.body.password !== req.body.confirmPassword){
+    if (req.body.password !== req.body.confirmPassword) {
         return next(new ErrorHandler('Password does not match', 400));
     }
 
     user.password = req.body.password;
     user.resetPasswordToken = undefined;
     user.resetPasswordTokenExpire = undefined;
-    await user.save(({validateBeforeSave: false}));
+    await user.save(({ validateBeforeSave: false }));
 
     sendToken(user, 201, res);
 
 });
 
 // Get User Profile - /api/v1/myprofile
-exports.getUserProfile = catchAsyncError(async(req, res, next) => {
+exports.getUserProfile = catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.user.id);
     res.status(200).json({
         success: true,
@@ -128,11 +135,11 @@ exports.getUserProfile = catchAsyncError(async(req, res, next) => {
 });
 
 // Change Password - /api/v1/password/update
-exports.changePassword = catchAsyncError(async(req, res, next) => {
+exports.changePassword = catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.user.id).select("+password");
 
     // check old password
-    if(!await user.isValidPassword(req.body.oldPassword)){
+    if (!await user.isValidPassword(req.body.oldPassword)) {
         return next(new ErrorHandler("Old password is incorrect", 401));
     }
 
@@ -145,15 +152,27 @@ exports.changePassword = catchAsyncError(async(req, res, next) => {
 });
 
 // Update User Profile - /api/v1/myprofile/update
-exports.updateUserProfile = catchAsyncError(async(req, res, next) => {
-    const newUserData = {
+exports.updateUserProfile = catchAsyncError(async (req, res, next) => {
+    let newUserData = {
         name: req.body.name,
         email: req.body.email
     };
+
+    let avatar;
+
+    if (req.file) {
+        avatar = `${process.env.BACKEND_URL}/uploads/user/${req.file.filename}`;
+        newUserData = { ...newUserData, avatar };
+    }
+
     const user = await User.findByIdAndUpdate(req.user.id, newUserData, {
         new: true,
         runValidators: true,
     });
+
+    if (!user) {
+        return next(new ErrorHandler('User not found', 404))
+    }
 
     res.status(200).json({
         success: true,
@@ -162,7 +181,7 @@ exports.updateUserProfile = catchAsyncError(async(req, res, next) => {
 });
 
 // Admin: Get All Users - /api/v1/admin/users
-exports.getAllUsers = catchAsyncError(async(req, res, next) => {
+exports.getAllUsers = catchAsyncError(async (req, res, next) => {
     const users = await User.find();
     res.status(200).json({
         success: true,
@@ -171,9 +190,9 @@ exports.getAllUsers = catchAsyncError(async(req, res, next) => {
 });
 
 // Admin: Get Specific User - /api/v1/admin/user/:id
-exports.getUser = catchAsyncError(async(req, res, next) => {
+exports.getUser = catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.params.id);
-    if(!user){
+    if (!user) {
         return next(new ErrorHandler(`User not found with this id: ${req.params.id}`));
     }
     res.status(200).json({
@@ -183,7 +202,7 @@ exports.getUser = catchAsyncError(async(req, res, next) => {
 });
 
 // Admin: Update User Role - /api/v1/admin/user/:id
-exports.updateUserRole = catchAsyncError(async(req, res, next) => {
+exports.updateUserRole = catchAsyncError(async (req, res, next) => {
     const newUserData = {
         name: req.body.name,
         email: req.body.email,
@@ -200,9 +219,9 @@ exports.updateUserRole = catchAsyncError(async(req, res, next) => {
 });
 
 // Admin: Delete User - /api/v1/admin/user/:id
-exports.deleteUser = catchAsyncError(async(req, res, next) => {
+exports.deleteUser = catchAsyncError(async (req, res, next) => {
     const user = await User.findById(req.params.id);
-    if(!user){
+    if (!user) {
         return next(new ErrorHandler(`User not found with this id: ${req.params.id}`));
     }
     await user.deleteOne();
