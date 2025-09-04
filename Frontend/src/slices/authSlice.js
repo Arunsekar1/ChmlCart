@@ -70,7 +70,6 @@ const authSlice = createSlice({
             return {
                 ...state,
                 loading: false,
-                error: action.payload
             }
         },
         logoutSuccess(state, action) {
@@ -139,7 +138,7 @@ const authSlice = createSlice({
             return {
                 ...state,
                 loading: false,
-                message:action.payload.message
+                message: action.payload.message
             }
         },
         forgotPasswordFail(state, action) {
@@ -160,7 +159,7 @@ const authSlice = createSlice({
                 ...state,
                 loading: false,
                 isAuthenticated: true,
-                user:action.payload.user
+                user: action.payload.user
             }
         },
         resetPasswordFail(state, action) {
@@ -168,6 +167,12 @@ const authSlice = createSlice({
                 ...state,
                 loading: false,
                 error: action.payload
+            }
+        },
+        clearUpdateProfile(state, action) {
+            return {
+                ...state,
+                isUpdated: false
             }
         },
     }
@@ -198,6 +203,7 @@ export const {
     forgotPasswordSuccess,
     resetPasswordFail,
     resetPasswordRequest,
-    resetPasswordSuccess
+    resetPasswordSuccess,
+    clearUpdateProfile
 } = actions;
 export default reducer;

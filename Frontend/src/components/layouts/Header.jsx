@@ -2,11 +2,12 @@ import React from 'react';
 import Search from './Search';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import {Dropdown,Image} from 'react-bootstrap';
+import { Dropdown, Image } from 'react-bootstrap';
 import { logout } from '../../actions/userActions';
 
 export default function Header() {
   const { isAuthenticated, user } = useSelector(state => state.authState);
+  const { items: cartItems } = useSelector(state => state.cartState);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
@@ -30,25 +31,25 @@ export default function Header() {
         </div>
 
         <div className="col-12 col-md-3 mt-4 mt-md-0 text-center">
-          {isAuthenticated ? 
-          (
-            <Dropdown className='d-inline'>
-              <Dropdown.Toggle id='dropdown-basic' variant='default text-white pe-5'>
-                <figure className='avatar avatar-nav'>
-                  <Image width="50px" src={user?.avatar??'./images/default_avatar.png'} />
-                </figure>
-                <span>{user?.name}</span>
-              </Dropdown.Toggle>
-              <Dropdown.Menu>
-                <Dropdown.Item onClick={()=>{navigate('/myprofile')}} className='text-dark' >Profile</Dropdown.Item>
-                <Dropdown.Item onClick={logoutHandler} className='text-danger' >Logout</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-          ):
-          <Link to='/login' className="btn" id="login_btn">Login</Link>
-        }
+          {isAuthenticated ?
+            (
+              <Dropdown className='d-inline'>
+                <Dropdown.Toggle id='dropdown-basic' variant='default text-white pe-5'>
+                  <figure className='avatar avatar-nav'>
+                    <Image width="50px" src={user?.avatar ?? './images/default_avatar.png'} />
+                  </figure>
+                  <span>{user?.name}</span>
+                </Dropdown.Toggle>
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => { navigate('/myprofile') }} className='text-dark' >Profile</Dropdown.Item>
+                  <Dropdown.Item onClick={logoutHandler} className='text-danger' >Logout</Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            ) :
+            <Link to='/login' className="btn" id="login_btn">Login</Link>
+          }
           <Link to="/cart" style={{ textDecoration: "none" }}><span id="cart" className="ms-3">Cart</span></Link>
-          <span className="ms-1" id="cart_count">2</span>
+          <span className="ms-1" id="cart_count">{cartItems.length}</span>
         </div>
       </nav>
     </>

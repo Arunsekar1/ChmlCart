@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { clearAuthError, updateProfile } from '../../actions/userActions';
 import { toast } from 'react-toastify';
 import MetaData from '../layouts/MetaData';
+import { clearUpdateProfile } from '../../slices/authSlice';
 
 
 export default function UpdateProfile() {
@@ -47,6 +48,7 @@ export default function UpdateProfile() {
             toast('Profile updated successfully', {
                 type: 'success',
                 position: "bottom-center",
+                onOpen: () => {dispatch(clearUpdateProfile())}
             });
             return;
         }
