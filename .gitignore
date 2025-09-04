@@ -40,3 +40,4 @@ debug.log
 
 *.env
 config.env
+Backend/config/config.env
