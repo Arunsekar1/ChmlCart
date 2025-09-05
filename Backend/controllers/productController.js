@@ -30,6 +30,17 @@ exports.getProducts = async (req, res, next) => {
 
 // Create Product - /api/v1/product/new
 exports.newProduct = catchAsyncError(async (req, res, next) => {
+    let images = []
+
+    if (req.files.length > 0) {
+        req.files.forEach(file => {
+            let url = `${process.env.BACKEND_URL}/uploads/product/${file.originalname}`
+            images.push({ image: url })
+        })
+    }
+
+    req.body.images = images;
+
     req.body.user = req.user.id;
     const product = await Product.create(req.body);
     res.status(201).json({
@@ -55,6 +66,24 @@ exports.getSingleProduct = async (req, res, next) => {
 // Update Product - /api/v1/product/:id
 exports.updateProduct = async (req, res, next) => {
     let product = await Product.findById(req.params.id);
+
+    // uploading images
+    let images = [];
+
+    // if images not cleared we keep existing images
+    if (req.body.imagesCleared === 'false') {
+        images = product.images;
+    }
+
+    if (req.files.length > 0) {
+        req.files.forEach(file => {
+            let url = `${process.env.BACKEND_URL}/uploads/product/${file.originalname}`
+            images.push({ image: url })
+        })
+    }
+
+    req.body.images = images;
+
     if (!product) {
         return res.status(404).json({
             success: false,
@@ -168,3 +197,12 @@ exports.deleteReview = catchAsyncError(async (req, res, next) => {
         success: true
     });
 });
+
+// get admin products - api/v1/admin/products
+exports.getAdminProducts = catchAsyncError(async (req, res, next) => {
+    const products = await Product.find();
+    res.status(200).json({
+        success: true,
+        products
+    });
+})
