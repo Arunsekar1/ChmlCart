@@ -21,7 +21,7 @@ const productSchema = new mongoose.Schema({
     },
     images: [
         {
-            image:{
+            image: {
                 type: String,
                 required: true
             }
@@ -61,16 +61,19 @@ const productSchema = new mongoose.Schema({
         type: Number,
         default: 0
     },
-    reviews: [  
+    reviews: [
         {
-            user: mongoose.Schema.Types.ObjectId,
-            rating: {   
+            user: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "User"
+            },
+            rating: {
                 type: String,
                 required: true
             },
             comment: {
                 type: String,
-                required: true  
+                required: true
             }
         }
     ],
