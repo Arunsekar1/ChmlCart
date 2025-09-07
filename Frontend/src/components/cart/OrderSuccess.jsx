@@ -1,4 +1,5 @@
 import React from 'react'
+import { Link } from 'react-router-dom'
 
 export default function OrderSuccess() {
   return (
@@ -8,7 +9,7 @@ export default function OrderSuccess() {
 
                 <h2>Your Order has been placed successfully.</h2>
 
-                <a href="/orders" style={{textDecoration:"none"}}>Go to Orders</a>
+                <Link to="/orders" style={{textDecoration:"none"}}>Go to Orders</Link>
             </div>
 
         </div>

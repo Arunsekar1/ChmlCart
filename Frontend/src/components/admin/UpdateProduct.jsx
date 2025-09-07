@@ -84,6 +84,7 @@ export default function UpdateProduct() {
         position: 'bottom-center',
         onOpen: () => dispatch(clearProductUpdated())
       })
+      setImages([])
       return;
     }
 
